@@ -310,7 +310,8 @@ void DisplayStatusBar()
 
 void SaveScore()
 {
-    std::fstream score_file("C:/gui2one/CODE/Typo/resources/scoreboard.txt", std::ios::in);
+    std::filesystem::path score_file_path = root_folder / "../resources/scoreboard.txt";
+    std::fstream score_file(score_file_path, std::ios::in);
     std::string line;
     std::vector<std::string> old_score;
     while (std::getline(score_file, line))
@@ -325,7 +326,7 @@ void SaveScore()
     snprintf(buff, sizeof(buff), "%d, %s", score, player_name);
     std::string current_score = buff;
 
-    std::fstream score_out("C:/gui2one/CODE/Typo/resources/scoreboard.txt", std::ios::out);
+    std::fstream score_out(score_file_path, std::ios::out);
 
     for (auto &old_sore_line : old_score)
     {
