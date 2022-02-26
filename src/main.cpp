@@ -4,24 +4,28 @@
 #include <unistd.h>
 #endif
 #include <algorithm>
+
 #include <random>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <random>
+#include <filesystem>
 #include <time.h>
-#include "curses.h"
+#include "ncurses/curses.h"
 #include "Timer.h"
 
 static bool QUIT = false;
 static bool LOST = false;
+
+char player_name[7] = {'g', 'u', 'i', '2', 'o', 'n', 'e'};
 struct Enemy;
 std::vector<Enemy> enemies;
 std::vector<char> typed_chars;
 std::vector<std::string> word_list;
 double level_freq = 10;
-double move_freq = 0.5;
+double move_freq = 0.02;
 double spawn_freq = 3.0;
 double move_accu = 0.0;
 double spawn_accu = 0.0;
@@ -30,6 +34,7 @@ uint32_t kill_inc = 0;
 uint32_t kill_accu = 0;
 Timer timer;
 short width, height;
+std::filesystem::path root_folder;
 
 uint32_t score = 0;
 short lives = 3;
@@ -53,8 +58,13 @@ void KillEnemy(size_t idx);
 void UpdateEnemies();
 void CheckSpelling();
 void DisplayStatusBar();
+void SaveScore();
 int main()
 {
+
+    char exe_path[MAX_PATH];
+    GetModuleFileNameA(NULL, exe_path, MAX_PATH);
+    root_folder = std::filesystem::path(exe_path).parent_path();
 
     timer.Start();
     ImportWordList();
@@ -118,12 +128,12 @@ int main()
                     enemies.erase(enemies.begin() + inc);
                     if (lives > 0)
                     {
-
                         lives -= 1;
                     }
                     else
                     {
                         LOST = true;
+                        SaveScore();
                     }
                 }
                 inc++;
@@ -143,7 +153,8 @@ int main()
 
 void ImportWordList()
 {
-    std::fstream infile("C:/gui2one/CODE/Typo/resources/clean_words.txt", std::ios::in);
+    std::filesystem::path words_list_path = root_folder / "../resources/clean_words.txt";
+    std::fstream infile(words_list_path, std::ios::in);
 
     std::string line;
     while (std::getline(infile, line))
@@ -158,6 +169,8 @@ void ImportWordList()
             // std::cout << " size : " << word_list.size() << std::endl;
         }
     }
+
+    infile.close();
 
     std::random_device rd;
     std::mt19937 generator(rd());
@@ -293,4 +306,31 @@ void DisplayStatusBar()
     attr_on(COLOR_PAIR(CLR_STATUS_BAR), (void *)0);
     mvprintw(height - 1, 60, stats_str);
     attr_off(COLOR_PAIR(CLR_STATUS_BAR), (void *)0);
+}
+
+void SaveScore()
+{
+    std::fstream score_file("C:/gui2one/CODE/Typo/resources/scoreboard.txt", std::ios::in);
+    std::string line;
+    std::vector<std::string> old_score;
+    while (std::getline(score_file, line))
+    {
+        if (line.length() > 0)
+        {
+            old_score.push_back(line);
+        }
+    }
+    score_file.close();
+    char buff[512];
+    snprintf(buff, sizeof(buff), "%d, %s", score, player_name);
+    std::string current_score = buff;
+
+    std::fstream score_out("C:/gui2one/CODE/Typo/resources/scoreboard.txt", std::ios::out);
+
+    for (auto &old_sore_line : old_score)
+    {
+        score_out << old_sore_line.c_str() << std::endl;
+    }
+    score_out << current_score << std::endl;
+    score_out.close();
 }
