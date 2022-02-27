@@ -1,5 +1,26 @@
-0, gui2one
-14, gui2one
-0, gui2one
-11, gui2one
-5, gui2one
+0,11193,gui2one
+8,14055,gui2one
+4,14082,gui2one
+12,17811,gui2one
+18,23840,gui2one
+18,32374,gui2one
+18,39598,gui2one
+11,17860,gui2one
+5,14777,gui2one
+91,51577,gui2one
+0,11883,gui2one
+0,11905,gui2one
+0,35799,gui2one
+0,14762,gui2one
+0,63219,gui2one
+0,10629,gui2one
+18,20831,gui2one
+9,17891,gui2one
+100,53789,gui2one
+0,9725,gui2one
+46,41968,gui2one
+55,30859,gui2one
+97,60074,gui2one
+97,107191,gui2one
+10,24743,gui2one
+0,52212,gui2one
