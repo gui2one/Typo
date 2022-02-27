@@ -51,6 +51,11 @@ struct ScoreRecord
     uint32_t score;
     uint32_t time_millis;
     std::string player_name;
+
+    bool operator==(const ScoreRecord &other)
+    {
+        return score == other.score && time_millis == other.time_millis && player_name == other.player_name;
+    }
 };
 
 std::ostream &operator<<(std::ostream &os, ScoreRecord &record)
@@ -141,7 +146,10 @@ int main()
                     else
                     {
                         LOST = true;
-                        SaveScore();
+                        if (score > 0)
+                        {
+                            SaveScore();
+                        }
                     }
                 }
                 inc++;
@@ -174,12 +182,10 @@ void ImportWordList()
     {
         if (line.length() > 3)
         {
-            // std::cout << " LINE : " << line << std::endl;
 
             line.erase(std::remove(line.begin(), line.end(), '\n'),
                        line.end());
             word_list.push_back(line);
-            // std::cout << " size : " << word_list.size() << std::endl;
         }
     }
 
@@ -254,7 +260,6 @@ void UpdateEnemies()
 {
     move_accu += timer.delta_seconds;
     spawn_accu += timer.delta_seconds;
-    // std::cout << move_accu << std::endl;
     if (move_accu > move_freq)
     {
 
@@ -304,7 +309,6 @@ void CheckSpelling()
         }
         if (ok && good_letters == enemy.value.length())
         {
-            // std::cout << "delete enemy !!!!!!" << std::endl;
             KillEnemy(enemy_idx);
             score += good_letters;
             kill_inc++;
@@ -380,25 +384,20 @@ std::vector<ScoreRecord> LoadOldScores()
         if (line.length() > 0)
         {
             // sore chars
-            std::cout << "FULL Line  : " << line << std::endl;
             auto token_score = line.substr(0, line.find(','));
-            std::cout << "\ttoken_score : " << token_score << std::endl;
             line.erase(0, line.find(",") + 1);
             auto token_millis = line.substr(0, line.find(','));
-            std::cout << "\ttoken_millis : " << token_millis << std::endl;
             line.erase(0, line.find(",") + 1);
 
             // remove newline character
             line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
             auto token_name = line;
-            std::cout << "\ttoken_name : " << token_name << std::endl;
 
             ScoreRecord score_record = {
                 (uint32_t)atoi(token_score.c_str()),
                 (uint32_t)atoi(token_millis.c_str()),
                 (char *)token_name.c_str()};
 
-            std::cout << "score_record : " << score_record << std::endl;
             old_scores.push_back(score_record);
         }
     }
@@ -411,15 +410,46 @@ void DisplayScoreboard()
 {
     auto old_scores = LoadOldScores();
     int inc = 0;
-    for (auto &score_record : old_scores)
+    // get last recorded
+    auto last_recorded = old_scores[old_scores.size() - 1];
+    bool last_record_displayed = false;
+    std::sort(old_scores.begin(), old_scores.end(), [](auto a, auto b)
+              { return b.score < a.score; });
+    for (size_t i = 0; i < 5; i++)
+    {
+        auto &score_record = old_scores[i];
+
+        if (score_record == last_recorded)
+        {
+            char score_str[256];
+            sprintf(score_str, "%s -- score : %d -- time : %d", score_record.player_name.c_str(), score_record.score, score_record.time_millis);
+            attr_on(COLOR_PAIR(CLR_ALERT), (void *)0);
+            mvprintw(inc + 1, 20, score_str);
+            attr_off(COLOR_PAIR(CLR_ALERT), (void *)0);
+
+            last_record_displayed = true;
+        }
+        else
+        {
+            char score_str[256];
+            sprintf(score_str, "%s -- score : %d -- time : %d", score_record.player_name.c_str(), score_record.score, score_record.time_millis);
+            attr_on(COLOR_PAIR(CLR_STATUS_BAR), (void *)0);
+            mvprintw(inc + 1, 20, score_str);
+            attr_off(COLOR_PAIR(CLR_STATUS_BAR), (void *)0);
+        }
+
+        inc++;
+    }
+
+    if (!last_record_displayed)
     {
         char score_str[256];
+        sprintf(score_str, "%s -- score : %d -- time : %d", last_recorded.player_name.c_str(), last_recorded.score, last_recorded.time_millis);
+        attr_on(COLOR_PAIR(CLR_ALERT), (void *)0);
 
-        sprintf(score_str, "Playe : %s -- score : %d -- time : %d", score_record.player_name.c_str(), score_record.score, score_record.time_millis);
-        attr_on(COLOR_PAIR(CLR_STATUS_BAR), (void *)0);
-        mvprintw(inc + 1, 20, score_str);
-        attr_off(COLOR_PAIR(CLR_STATUS_BAR), (void *)0);
-        inc++;
+        mvprintw(inc + 1, 20, "...");
+        mvprintw(inc + 2, 20, score_str);
+        attr_off(COLOR_PAIR(CLR_ALERT), (void *)0);
     }
 }
 
@@ -434,7 +464,6 @@ void SaveScore()
     // rewrite old_scores
     for (auto &old_score_record : old_scores)
     {
-        // std::cout << "!!!!!!!! : " << old_score_record;
         score_out << old_score_record;
     }
     // insert current score

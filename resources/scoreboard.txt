@@ -24,3 +24,12 @@
 97,107191,gui2one
 10,24743,gui2one
 0,52212,gui2one
+14,23629,gui2one
+41,27246,gui2one
+47,28342,gui2one
+10,21340,gui2one
+56,28947,gui2one
+7,21058,gui2one
+7,21040,gui2one
+20,23333,gui2one
+61,29257,gui2one
