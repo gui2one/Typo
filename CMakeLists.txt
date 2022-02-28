@@ -21,8 +21,12 @@ link_directories(
 
 target_link_libraries(Typo PUBLIC 
     -lncurses
-    # libstdc++
-    # libstdc++fs
        
 )
-
+add_custom_command(
+    TARGET Typo 
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${PROJECT_SOURCE_DIR}\\resources
+        $<TARGET_FILE_DIR:Typo>\\resources
+)

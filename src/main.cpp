@@ -176,7 +176,7 @@ int main()
 
 void ImportWordList()
 {
-    std::filesystem::path words_list_path = root_folder / "../resources/clean_words.txt";
+    std::filesystem::path words_list_path = root_folder / "resources/clean_words.txt";
     std::fstream infile(words_list_path, std::ios::in);
 
     std::string line;
@@ -376,7 +376,7 @@ std::vector<ScoreRecord> LoadOldScores()
 {
 
     // load old scores
-    std::filesystem::path score_file_path = root_folder / "../resources/scoreboard.txt";
+    std::filesystem::path score_file_path = root_folder / "resources/scoreboard.txt";
     std::fstream score_file;
     score_file.open(score_file_path, std::ios::in);
     std::string line;
@@ -462,9 +462,10 @@ void SaveScore()
 {
     auto old_scores = LoadOldScores();
 
-    std::filesystem::path score_file_path = root_folder / "../resources/scoreboard.txt";
+    std::filesystem::path score_file_path = root_folder / "resources/scoreboard.txt";
 
-    std::fstream score_out(score_file_path, std::ios::out);
+    std::fstream score_out;
+    score_out.open(score_file_path, std::ios::out);
 
     // rewrite old_scores
     for (auto &old_score_record : old_scores)
