@@ -97,7 +97,9 @@ int main()
 
     InitEnemies();
     initscr();
+
     getmaxyx(stdscr, height, width);
+    // resizeterm(10, width);
     start_color();
     init_pair(CLR_WHITE, COLOR_WHITE, COLOR_BLACK);
     init_pair(CLR_CYAN, COLOR_CYAN, COLOR_BLACK);
@@ -419,7 +421,7 @@ void DisplayScoreboard()
     {
         auto &score_record = old_scores[i];
 
-        if (score_record == last_recorded)
+        if (score_record == last_recorded && score > 0)
         {
             char score_str[256];
             sprintf(score_str, "%s -- score : %d -- time : %d", score_record.player_name.c_str(), score_record.score, score_record.time_millis);
@@ -441,7 +443,7 @@ void DisplayScoreboard()
         inc++;
     }
 
-    if (!last_record_displayed)
+    if (!last_record_displayed && score > 0)
     {
         char score_str[256];
         sprintf(score_str, "%s -- score : %d -- time : %d", last_recorded.player_name.c_str(), last_recorded.score, last_recorded.time_millis);
