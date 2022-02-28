@@ -236,8 +236,8 @@ void InitGame()
     lives = 3;
     score = 0;
     level_freq = 10;
-    move_freq = 0.1;
-    spawn_freq = 1.0;
+    move_freq = 0.2;
+    spawn_freq = 2.0;
     enemies.clear();
 }
 
@@ -377,7 +377,8 @@ std::vector<ScoreRecord> LoadOldScores()
 
     // load old scores
     std::filesystem::path score_file_path = root_folder / "../resources/scoreboard.txt";
-    std::fstream score_file(score_file_path, std::ios::in);
+    std::fstream score_file;
+    score_file.open(score_file_path, std::ios::in);
     std::string line;
     std::vector<ScoreRecord> old_scores;
 
@@ -417,7 +418,9 @@ void DisplayScoreboard()
     bool last_record_displayed = false;
     std::sort(old_scores.begin(), old_scores.end(), [](auto a, auto b)
               { return b.score < a.score; });
-    for (size_t i = 0; i < 5; i++)
+
+    auto num_to_show = std::min(5, (int)old_scores.size());
+    for (size_t i = 0; i < num_to_show; i++)
     {
         auto &score_record = old_scores[i];
 
